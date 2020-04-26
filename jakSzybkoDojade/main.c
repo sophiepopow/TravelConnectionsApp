@@ -55,7 +55,7 @@ int** optimalTimeMatrix(int numberOfStations, int numberOfLines, Line** lines){
             if (i == j)
                 connectionsMatrix[i][j] = 0;
             else
-                connectionsMatrix[i][j] = __INT_MAX__;
+                connectionsMatrix[i][j] = __INT_MAX__/2;
         }
     }
     
@@ -64,12 +64,12 @@ int** optimalTimeMatrix(int numberOfStations, int numberOfLines, Line** lines){
         int station = line->startingStation;
         
         for (int j = 0; j < line->lineLength; j++) {
-            
             connectionsMatrix[station][line->connections[j].destination] = minTime(line->connections[j].travelTime, connectionsMatrix[station][line->connections[j].destination]);
             
             connectionsMatrix[line->connections[j].destination][station] = minTime(line->connections[j].travelTime, connectionsMatrix[line->connections[j].destination][station]);
             
-            station = line->connections->destination;
+            station = line->connections[j].destination;
+            
         }
     }
 
@@ -78,6 +78,7 @@ int** optimalTimeMatrix(int numberOfStations, int numberOfLines, Line** lines){
             for(int j = 0; j < numberOfStations; j++)
                 if(connectionsMatrix[i][j] > connectionsMatrix[i][m] + connectionsMatrix[m][j])
                     connectionsMatrix[i][j] = connectionsMatrix[i][m] + connectionsMatrix[m][j];
+    
     
     return connectionsMatrix;
 }
@@ -91,21 +92,22 @@ int main(int argc, const char * argv[]) {
     
     Line** subwayLines = (Line *) malloc(lines*sizeof(Line));
     
-    int lineLength, lineStart;
-    int travelTime, nextStation;
     for (int i = 0; i < lines; i++) {
+        int lineLength, lineStart;
         scanf("%d %d", &lineLength, &lineStart);
         
         // lineLength - 1 beacuse we don't count starting station
         subwayLines[i] = newLine(i, lineLength-1, lineStart);
         
         for (int j = 0; j < lineLength-1; j++) {
+            int travelTime, nextStation;
             scanf("%d %d", &travelTime, &nextStation);
             subwayLines[i]->connections[j].travelTime = travelTime;
             subwayLines[i]->connections[j].destination = nextStation;
+
         }
     }
-
+    
     int** shortestTravelTime = optimalTimeMatrix(stations, lines, subwayLines);
     
 /// MARK: - Queries
@@ -113,7 +115,7 @@ int main(int argc, const char * argv[]) {
     int startingPoint, finalPoint;
     for (int i = 0; i < queries; i++) {
         scanf("%d %d", &startingPoint, &finalPoint);
-        printf("%d", shortestTravelTime[startingPoint][finalPoint]);
+        printf("%d\n", shortestTravelTime[startingPoint][finalPoint]);
     }
 
  /// MARK: - Free memory
